@@ -96,11 +96,10 @@ const base64UrlEncode = buf =>
   btoa(String.fromCharCode(...new Uint8Array(buf)))
     .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 
+// Change getRedirectUri to return a consistent, base URL
 const getRedirectUri = () => {
-  const loc = window.location;
-  let path = loc.pathname;
-  if (!path.endsWith('/')) path += '/';
-  return loc.origin + path;
+  // Use a fixed URL if possible, or ensure it doesn't change during view transitions
+  return window.location.origin + window.location.pathname.replace(/\/$/, "");
 };
 
 const startSpotifyLogin = async (pendingUrl='') => {
