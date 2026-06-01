@@ -123,8 +123,17 @@ const startSpotifyLogin = async (pendingUrl='') => {
 const handleSpotifyCallback = async (code, error) => {
   if (!code && !error) return false;
   if (error) { setState({spotifyStatus:{ok:false,msg:'Spotify login cancelled: '+error}}); return true; }
+  
   const clientId = localStorage.getItem(SP_CLIENT_STORE)||'';
-  const verifier = localStorage.getItem(SP_VERIFIER_STORE)||'';
+  
+  // --- ADD THIS BLOCK HERE ---
+  const verifier = localStorage.getItem(SP_VERIFIER_STORE);
+  if (!verifier) {
+    setState({spotifyStatus:{ok:false, msg:'Login session expired. Please try connecting again.'}});
+    return true; 
+  }
+  // ---------------------------
+
   try {
     const res = await fetch(SPOTIFY_TOKEN, {
       method:'POST',
@@ -133,9 +142,11 @@ const handleSpotifyCallback = async (code, error) => {
         grant_type:'authorization_code', code,
         redirect_uri: getRedirectUri(),
         client_id: clientId,
-        code_verifier: verifier,
+        code_verifier: verifier, // Your code uses the variable here
       })
     });
+    // ... rest of your code
+
     if (!res.ok) {
       const e = await res.json().catch(()=>({}));
       throw new Error(e.error_description||'Token exchange failed ('+res.status+')');
