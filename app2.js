@@ -230,7 +230,7 @@ const fetchSpotifyPlaylist = async (url) => {
 
   // Fetch tracks via dedicated endpoint — always works regardless of playlist size
   let songs = [];
-  let tracksUrl = SPOTIFY_API+'/playlists/'+id+'/items?limit=100';
+  let tracksUrl = SPOTIFY_API+'/playlists/'+id+'/items?limit=100&market=US';
   while (tracksUrl) {
     const tr = await fetch(tracksUrl, {headers});
     if (tr.status===401) {
