@@ -353,7 +353,16 @@ const injectStyles = () => {
     .vocal-btn{background:transparent;color:#666;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-weight:700;font-size:12px;transition:all 0.15s;}
     .vocal-btn.active{background:#e85d3a;color:#fff;}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:24px;max-width:1400px;margin:0 auto;}
-    @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+    .grid { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 24px; 
+  padding: 24px; 
+  max-width: 1400px; 
+  margin: 0 auto; 
+}
+.grid > * { flex: 1 1 400px; } /* Ensures items wrap fluidly based on screen size */
+
     .label{font-size:10px;letter-spacing:2px;color:#555;margin-bottom:12px;text-transform:uppercase;}
     .card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px;margin-bottom:16px;}
     .add-form{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
