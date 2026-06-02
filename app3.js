@@ -21,7 +21,7 @@ const CAMELOT = {
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 // Cloudflare Worker proxy for Spotify token exchange (avoids CORS block on GitHub Pages)
 // After deploying worker.js to Cloudflare, replace this URL with your worker URL
-const SPOTIFY_PROXY  = 'https://setlist-spotify.YOUR-SUBDOMAIN.workers.dev';
+const SPOTIFY_PROXY  = 'https://setlist-spotify.troymd123.workers.dev';
 const SPOTIFY_TOKEN  = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API    = 'https://api.spotify.com/v1';
 const MODEL          = 'claude-sonnet-4-20250514';
