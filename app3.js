@@ -170,7 +170,7 @@ const handleSpotifyCallback = async () => {
 
   try {
     // Use proxy worker to avoid CORS block on GitHub Pages
-    const tokenUrl = (typeof SPOTIFY_PROXY !== 'undefined' && !SPOTIFY_PROXY.includes('YOUR-SUBDOMAIN'))
+    const tokenUrl = (typeof SPOTIFY_PROXY !== 'undefined' && !SPOTIFY_PROXY.includes('troymd123'))
       ? SPOTIFY_PROXY
       : 'https://accounts.spotify.com/api/token';
     dbgLog('Token URL: ' + tokenUrl);
