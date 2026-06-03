@@ -191,16 +191,27 @@ const handleSpotifyCallback = async () => {
 
 dbgLog('Body: ' + body.toString().slice(0,100));
 dbgLog('Starting fetch...');
+dbgLog('URL: ' + tokenUrl);
 
-res = await fetch(tokenUrl, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  body
-});
+try {
+  res = await window.fetch(tokenUrl, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body
+  });
 
-dbgLog('FETCH COMPLETE');
+  dbgLog('FETCH COMPLETE');
+  dbgLog('Response type: ' + res.type);
+  dbgLog('Response status: ' + res.status);
+
+} catch (fetchErr) {
+  dbgLog('FETCH ERROR: ' + fetchErr.name);
+  dbgLog('FETCH MSG: ' + fetchErr.message);
+  throw fetchErr;
+}
 dbgLog('HTTP status: ' + res.status);
     } catch(fetchErr) {
       throw new Error('POST fetch failed: ' + fetchErr.message);
