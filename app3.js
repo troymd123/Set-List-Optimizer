@@ -173,34 +173,29 @@ const handleSpotifyCallback = async () => {
   dbgLog('client_id: ' + (clientId ? clientId.slice(0,8)+'...' : 'MISSING'));
   dbgLog('verifier: ' + (verifier ? verifier.slice(0,8)+'...' : 'MISSING'));
   dbgLog('redirect_uri: ' + redirectUri);
+let res, data;
 
-  try {
-    // Use proxy worker to avoid CORS block on GitHub Pages
-    const tokenUrl = 'https://setlist-spotify.troymd123.workers.dev';
-    dbgLog('Token URL: ' + tokenUrl);
-    dbgLog('Sending POST to worker...');
-    let res, data;
-    try {
-  const body = new URLSearchParams({
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: redirectUri,
-    client_id: clientId,
-    code_verifier: verifier,
-  });
+const body = new URLSearchParams({
+  grant_type: 'authorization_code',
+  code,
+  redirect_uri: redirectUri,
+  client_id: clientId,
+  code_verifier: verifier,
+});
 
-  dbgLog('Body: ' + body.toString().slice(0,100));
+dbgLog('Body: ' + body.toString().slice(0,100));
 
-  dbgLog('Starting fetch...');
-  dbgLog('URL: ' + tokenUrl);
+dbgLog('Starting fetch...');
+dbgLog('URL: ' + tokenUrl);
 
-  const controller = new AbortController();
+const controller = new AbortController();
 
-  setTimeout(() => {
-    dbgLog('ABORTING AFTER 15 SECONDS');
-    controller.abort();
-  }, 15000);
+setTimeout(() => {
+  dbgLog('ABORTING AFTER 15 SECONDS');
+  controller.abort();
+}, 15000);
 
+try {
   res = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
@@ -218,73 +213,6 @@ const handleSpotifyCallback = async () => {
   dbgLog('FETCH ERROR MSG: ' + fetchErr.message);
   throw fetchErr;
 }
-dbgLog('HTTP status: ' + res.status);
-    } catch(fetchErr) {
-      throw new Error('POST fetch failed: ' + fetchErr.message);
-    }
-    try {
-  const raw = await res.text();
-
-  dbgLog('RAW LENGTH: ' + raw.length);
-  dbgLog('RAW START: ' + raw.slice(0,100));
-
-  data = JSON.parse(raw);
-
-  dbgLog('JSON PARSED');
-  dbgLog('TOKEN PRESENT: ' + !!data.access_token);
-
-} catch(parseErr) {
-  throw new Error('Response parse failed: ' + parseErr.message);
-}
-    if (!res.ok || data.error) {
-      throw new Error(data.error_description || data.error || 'Token exchange failed ' + res.status);
-    }
-    dbgLog('Token received, saving...');
-    localStorage.setItem(SP_TOKEN_STORE,  data.access_token);
-    localStorage.setItem(SP_EXPIRY_STORE, String(Date.now()+(data.expires_in-60)*1000));
-    const pendingUrl = localStorage.getItem(SP_PENDING_URL)||'';
-    localStorage.removeItem(SP_PENDING_URL);
-    dbgLog('Saved! Starting app...');
-    // Ensure rootEl is set before rendering
-    if (!rootEl) rootEl = document.getElementById('root');
-    Object.assign(state, {
-      spotifyUrl: pendingUrl||'',
-      spotifyStatus:{ok:true, msg:'Connected! ' + (pendingUrl ? 'Tap Import to load your playlist.' : 'Paste a playlist URL and tap Import.')}
-    });
-    try {
-      dbgLog('Building header...');
-      // Test each section individually to find crash point
-      const testH = h('div',{style:{color:'#fff',padding:'20px'}},'APP IS WORKING - Spotify Connected!');
-      if (rootEl.firstChild) rootEl.replaceChild(testH, rootEl.firstChild);
-      else rootEl.appendChild(testH);
-      if(dbg) dbg.style.display='none';
-      // Test buildApp section by section to find crash
-      setTimeout(() => {
-        const show = msg => { rootEl.innerHTML = '<div style="color:#3ae8a6;padding:20px;font-family:monospace;font-size:12px;white-space:pre-wrap">' + msg + '</div>'; };
-        const fail = (section, e) => { rootEl.innerHTML = '<div style="color:#e85d3a;padding:20px;font-family:monospace;font-size:11px;white-space:pre-wrap">CRASH in ' + section + ':\n' + e.message + '\n' + (e.stack||'').slice(0,500) + '</div>'; };
-        try { show('Testing injectStyles...'); injectStyles(); } catch(e){fail('injectStyles',e);return;}
-        try { show('Testing buildAnalysisPanel...'); buildAnalysisPanel(); } catch(e){fail('buildAnalysisPanel',e);return;}
-        try { show('Testing buildKeyTab...'); buildKeyTab(); } catch(e){fail('buildKeyTab',e);return;}
-        try { show('Testing buildGenerateTab...'); buildGenerateTab(); } catch(e){fail('buildGenerateTab',e);return;}
-        try { show('Testing buildSettingsModal...'); buildSettingsModal(); } catch(e){fail('buildSettingsModal',e);return;}
-        try { show('Testing buildApp...'); buildApp(); } catch(e){fail('buildApp',e);return;}
-        try {
-          show('All sections OK - rendering full app...');
-          const appEl = buildApp();
-          if (rootEl.firstChild) rootEl.replaceChild(appEl, rootEl.firstChild);
-          else rootEl.appendChild(appEl);
-        } catch(e){fail('final render',e);}
-      }, 200);
-    } catch(renderErr) {
-      dbgLog('RENDER ERROR: ' + renderErr.message + ' ' + (renderErr.stack||'').slice(0,300));
-    }
-  } catch(e) {
-    dbgLog('ERROR: ' + e.message);
-    // Leave debug screen visible so user can see the error
-  }
-  return true;
-};
-
 const getSpotifyToken = () => {
   const token  = localStorage.getItem(SP_TOKEN_STORE)||'';
   const expiry = parseInt(localStorage.getItem(SP_EXPIRY_STORE)||'0');
