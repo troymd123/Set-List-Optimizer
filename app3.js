@@ -181,35 +181,41 @@ const handleSpotifyCallback = async () => {
     dbgLog('Sending POST to worker...');
     let res, data;
     try {
-      const body = new URLSearchParams({
-  grant_type:    'authorization_code',
-  code,
-  redirect_uri:  redirectUri,
-  client_id:     clientId,
-  code_verifier: verifier,
-});
+  const body = new URLSearchParams({
+    grant_type: 'authorization_code',
+    code,
+    redirect_uri: redirectUri,
+    client_id: clientId,
+    code_verifier: verifier,
+  });
 
-dbgLog('Body: ' + body.toString().slice(0,100));
-dbgLog('Starting fetch...');
-dbgLog('URL: ' + tokenUrl);
+  dbgLog('Body: ' + body.toString().slice(0,100));
 
-try {
-  res = await window.fetch(tokenUrl, {
+  dbgLog('Starting fetch...');
+  dbgLog('URL: ' + tokenUrl);
+
+  const controller = new AbortController();
+
+  setTimeout(() => {
+    dbgLog('ABORTING AFTER 15 SECONDS');
+    controller.abort();
+  }, 15000);
+
+  res = await fetch(tokenUrl, {
     method: 'POST',
-    mode: 'cors',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
-    body
+    body,
+    signal: controller.signal
   });
 
-  dbgLog('FETCH COMPLETE');
-  dbgLog('Response type: ' + res.type);
-  dbgLog('Response status: ' + res.status);
+  dbgLog('FETCH RETURNED');
+  dbgLog('HTTP status: ' + res.status);
 
 } catch (fetchErr) {
   dbgLog('FETCH ERROR: ' + fetchErr.name);
-  dbgLog('FETCH MSG: ' + fetchErr.message);
+  dbgLog('FETCH ERROR MSG: ' + fetchErr.message);
   throw fetchErr;
 }
 dbgLog('HTTP status: ' + res.status);
