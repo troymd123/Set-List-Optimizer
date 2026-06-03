@@ -181,24 +181,27 @@ const handleSpotifyCallback = async () => {
     dbgLog('Sending POST to worker...');
     let res, data;
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
       const body = new URLSearchParams({
-        grant_type:    'authorization_code',
-        code,
-        redirect_uri:  redirectUri,
-        client_id:     clientId,
-        code_verifier: verifier,
-      });
-      dbgLog('Body: ' + body.toString().slice(0,100));
-      res = await fetch(tokenUrl, {
-        method: 'POST',
-        headers: {'Content-Type':'application/x-www-form-urlencoded'},
-        body,
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-      dbgLog('HTTP status: ' + res.status);
+  grant_type:    'authorization_code',
+  code,
+  redirect_uri:  redirectUri,
+  client_id:     clientId,
+  code_verifier: verifier,
+});
+
+dbgLog('Body: ' + body.toString().slice(0,100));
+dbgLog('Starting fetch...');
+
+res = await fetch(tokenUrl, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body
+});
+
+dbgLog('FETCH COMPLETE');
+dbgLog('HTTP status: ' + res.status);
     } catch(fetchErr) {
       throw new Error('POST fetch failed: ' + fetchErr.message);
     }
