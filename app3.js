@@ -203,12 +203,19 @@ const handleSpotifyCallback = async () => {
       throw new Error('POST fetch failed: ' + fetchErr.message);
     }
     try {
-      const raw = await res.text();
-      dbgLog('Raw response: ' + raw.slice(0,200));
-      data = JSON.parse(raw);
-    } catch(parseErr) {
-      throw new Error('Response parse failed: ' + parseErr.message);
-    }
+  const raw = await res.text();
+
+  dbgLog('RAW LENGTH: ' + raw.length);
+  dbgLog('RAW START: ' + raw.slice(0,100));
+
+  data = JSON.parse(raw);
+
+  dbgLog('JSON PARSED');
+  dbgLog('TOKEN PRESENT: ' + !!data.access_token);
+
+} catch(parseErr) {
+  throw new Error('Response parse failed: ' + parseErr.message);
+}
     if (!res.ok || data.error) {
       throw new Error(data.error_description || data.error || 'Token exchange failed ' + res.status);
     }
