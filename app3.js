@@ -213,6 +213,44 @@ try {
   dbgLog('FETCH ERROR MSG: ' + fetchErr.message);
   throw fetchErr;
 }
+  try {
+  const raw = await res.text();
+
+  dbgLog('RAW LENGTH: ' + raw.length);
+  dbgLog('RAW START: ' + raw.slice(0,100));
+
+  data = JSON.parse(raw);
+
+  dbgLog('JSON PARSED');
+  dbgLog('TOKEN PRESENT: ' + !!data.access_token);
+
+} catch (parseErr) {
+  throw new Error('Response parse failed: ' + parseErr.message);
+}
+
+if (!res.ok || data.error) {
+  throw new Error(
+    data.error_description ||
+    data.error ||
+    'Token exchange failed ' + res.status
+  );
+}
+
+localStorage.setItem(SP_TOKEN_STORE, data.access_token);
+localStorage.setItem(
+  SP_EXPIRY_STORE,
+  String(Date.now() + (data.expires_in - 60) * 1000)
+);
+
+setState({
+  spotifyStatus: {
+    ok: true,
+    msg: 'Connected to Spotify'
+  }
+});
+
+return true;
+};
 const getSpotifyToken = () => {
   const token  = localStorage.getItem(SP_TOKEN_STORE)||'';
   const expiry = parseInt(localStorage.getItem(SP_EXPIRY_STORE)||'0');
